@@ -175,7 +175,7 @@ http://localhost/softlife
 
 # Author
 
-Developed by Akram 🚀
+Developed by iman Akram 🚀
 
 ---
 
