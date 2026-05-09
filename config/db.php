@@ -1,9 +1,9 @@
 <?php
 // ── DATABASE CONFIG ──
-define('DB_HOST', 'localhost');
+define('DB_HOST', 'mysql.railway.internal');
 define('DB_USER', 'root');
-define('DB_PASS', '');          // Default XAMPP — change if you set a password
-define('DB_NAME', 'softlife');
+define('DB_PASS', 'UAmrwHpuyxMGoCzTGNVBUFUtydpkdarf');
+define('DB_NAME', 'railway');
 
 function getDB(): PDO {
     static $pdo = null;
