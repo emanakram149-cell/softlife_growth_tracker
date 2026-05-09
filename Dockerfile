@@ -6,4 +6,8 @@ COPY . /var/www/html/
 
 RUN chown -R www-data:www-data /var/www/html
 
+RUN a2enmod rewrite
+
 EXPOSE 80
+
+CMD bash -c "sed -i 's/80/${PORT:-80}/g' /etc/apache2/ports.conf /etc/apache2/sites-enabled/000-default.conf && apache2-foreground"
