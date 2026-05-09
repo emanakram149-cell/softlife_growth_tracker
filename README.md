@@ -170,6 +170,7 @@ http://localhost/softlife
 * Notifications & Reminders
 * AI Wellness Suggestions
 * Data Analytics Dashboard
+* Updated deployment config
 
 ---
 
