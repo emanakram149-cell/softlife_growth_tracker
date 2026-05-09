@@ -1,14 +1,13 @@
-FROM php:8.2-apache
+FROM php:8.2-cli
 
-RUN a2dismod mpm_event mpm_worker || true && \
-    a2enmod mpm_prefork
+RUN apt-get update && apt-get install -y \
+    libpdo-mysql-dev \
+    && docker-php-ext-install pdo pdo_mysql
 
-RUN docker-php-ext-install pdo pdo_mysql
+COPY . /app/
 
-RUN a2enmod rewrite
+WORKDIR /app
 
-COPY . /var/www/html/
+EXPOSE 80
 
-RUN chown -R www-data:www-data /var/www/html
-
-CMD bash -c "sed -i 's/80/${PORT:-80}/g' /etc/apache2/ports.conf /etc/apache2/sites-enabled/000-default.conf && apache2-foreground"
+CMD php -S 0.0.0.0:${PORT:-80}
