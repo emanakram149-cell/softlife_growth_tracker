@@ -38,14 +38,43 @@ if ($captcha !== (int)$expected)  fail('Incorrect captcha answer. Please try aga
 unset($_SESSION['math_captcha_answer'], $_SESSION['math_captcha_time']);
 
 $db = getDB();
+// ── LOGIN RATE LIMITING ──
+$ip = $_SERVER['REMOTE_ADDR'] ?? '';
+$db = getDB();
 
+// failed_logins table banao agar nahi hai
+$db->exec("CREATE TABLE IF NOT EXISTS failed_logins (
+    id         INT AUTO_INCREMENT PRIMARY KEY,
+    ip_address VARCHAR(45) NOT NULL,
+    attempted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_ip (ip_address)
+) ENGINE=InnoDB");
+
+// Last 15 min mein is IP se kitne failed attempts?
+$st = $db->prepare("SELECT COUNT(*) as cnt FROM failed_logins 
+    WHERE ip_address = ? 
+    AND attempted_at > DATE_SUB(NOW(), INTERVAL 15 MINUTE)");
+$st->execute([$ip]);
+$attempts = $st->fetch()['cnt'];
+
+if ($attempts >= 5) {
+    fail('Too many failed attempts. Please wait 15 minutes.', 429);
+}
 // ── FIND USER ──
 $st = $db->prepare('SELECT * FROM users WHERE email = ?');
 $st->execute([$email]);
 $user = $st->fetch();
 
-if (!$user || !password_verify($password, $user['password']))
+if (!$user || !password_verify($password, $user['password'])) {
+    // Failed attempt record karo
+    $db->prepare("INSERT INTO failed_logins (ip_address) VALUES (?)")
+       ->execute([$ip]);
     fail('Incorrect email or password.');
+}
+
+// Successful login pe is IP ki failures clear karo
+$db->prepare("DELETE FROM failed_logins WHERE ip_address = ?")
+   ->execute([$ip]);
 
 // ── DELETE EXPIRED SESSIONS ──
 $db->prepare('DELETE FROM sessions WHERE user_id = ? AND expires_at < NOW()')
