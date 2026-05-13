@@ -1,0 +1,1601 @@
+<!DOCTYPE html>
+<html lang="en" id="htmlRoot">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SoftLife – Your Personal Growth Journey</title>
+<meta name="description" content="SoftLife – Track habits, mood, goals and activities in one beautiful place.">
+<link id="favicon" rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='16' fill='%237c6ff7'/><text y='46' x='8' font-size='42'>🌱</text></svg>">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<link rel="stylesheet" href="style.css">
+</head>
+<body id="bodyEl">
+
+<!-- SCREEN READER SKIP LINK -->
+<a href="#main-content" class="skip-link">⌨️ Skip to main content</a>
+
+<!-- =====================================================
+     CLOCK BAR
+===================================================== -->
+<div id="clockBar" role="banner" aria-label="Clock and navigation bar">
+  <div class="cb-left">
+    <span style="font-size:1rem;">🌱</span>
+    <strong style="font-family:'DM Serif Display',serif;font-size:.92rem;">SoftLife</strong>
+    <time id="liveClock" aria-live="polite" aria-label="Current time"></time>
+    <span id="liveDate" style="opacity:.8;"></span>
+  </div>
+  <div class="cb-right">
+    <div class="cb-search-wrap" role="search">
+      <span class="cb-search-icon">🔍</span>
+      <input type="text" id="cbSearchInput" placeholder="Search pages, features…"
+             aria-label="Quick search" autocomplete="off"
+             oninput="runCbSearch(this.value)"
+             onkeydown="if(event.key==='Enter'){runCbSearch(this.value)}"
+             onfocus="document.querySelector('.cb-search-wrap').classList.add('focused')"
+             onblur="document.querySelector('.cb-search-wrap').classList.remove('focused')">
+    </div>
+  </div>
+</div>
+
+<!-- =====================================================
+     COOKIE CONSENT
+===================================================== -->
+<div id="cookieBanner" role="dialog" aria-label="Cookie consent" aria-live="polite">
+  <div class="cookie-text">
+    <h4>🍪 We use cookies</h4>
+    <p>SoftLife uses cookies to save your theme, accessibility settings, and session preferences. No data is sold to advertisers.</p>
+  </div>
+  <div class="cookie-btns">
+    <button class="btn-cookie-accept" onclick="acceptCookies()" aria-label="Accept all cookies">Accept All</button>
+    <button class="btn-cookie-manage" onclick="manageCookies()" aria-label="Manage cookie preferences">Manage</button>
+  </div>
+</div>
+
+<!-- =====================================================
+     SEARCH OVERLAY
+===================================================== -->
+<div id="searchOverlay" role="dialog" aria-modal="true" aria-label="Global search" onclick="handleSearchOverlayClick(event)">
+  <div class="search-box" role="search">
+    <div class="search-inner">
+      <span aria-hidden="true" style="font-size:1.1rem;">🔍</span>
+      <input type="text" id="searchInput" placeholder="Search pages, habits, features…"
+             aria-label="Search SoftLife" oninput="filterSearch(this.value)" autocomplete="off">
+      <button class="search-close" onclick="closeSearch()" aria-label="Close search">✕</button>
+    </div>
+    <div id="searchResults" class="search-results" role="listbox" aria-label="Search results"></div>
+  </div>
+</div>
+
+<!-- =====================================================
+     SCROLL BUTTONS
+===================================================== -->
+<button id="scrollToTop" onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="Scroll to top" title="Page Up">↑</button>
+<button id="scrollToBottom" onclick="window.scrollTo({top:document.body.scrollHeight,behavior:'smooth'})" aria-label="Scroll to bottom" title="Page Down">↓</button>
+
+<!-- =====================================================
+     ACCESSIBILITY TOOLBAR
+===================================================== -->
+<div id="a11yBar" role="toolbar" aria-label="Accessibility tools">
+  <button class="a11y-btn" onclick="toggleTTS()" id="ttsBtn" aria-label="Toggle screen reader / text-to-speech" title="Read page aloud" aria-pressed="false">🔊</button>
+  <button class="a11y-btn" onclick="toggleContrast()" id="contrastBtn" aria-label="Toggle high contrast" title="High Contrast" aria-pressed="false">🌗</button>
+  <button class="a11y-btn" onclick="toggleDark()" id="darkBtn" aria-label="Toggle dark mode" title="Dark Mode">🌙</button>
+  <button class="a11y-btn" onclick="increaseText()" aria-label="Increase text size" title="Larger Text">A+</button>
+  <button class="a11y-btn" onclick="decreaseText()" aria-label="Decrease text size" title="Smaller Text">A−</button>
+  <button class="a11y-btn" onclick="toggleA11yPanel()" aria-label="Accessibility help" title="Help">♿</button>
+</div>
+
+<div id="a11yPanel" role="dialog" aria-label="Accessibility information">
+  <h4>♿ Accessibility Help</h4>
+  <ul>
+    <li>⌨️ <b>Tab</b> — navigate elements</li>
+    <li>↵ <b>Enter / Space</b> — activate</li>
+    <li>🔍 <b>Ctrl+K</b> — global search</li>
+    <li>🔊 <b>TTS</b> — page read-aloud</li>
+    <li>⬆⬇ <b>Page Up/Down</b> buttons</li>
+    <li>🌙 <b>Dark mode</b> toggle</li>
+    <li>🌗 <b>High contrast</b> toggle</li>
+    <li>📢 Live alerts for screen readers</li>
+  </ul>
+  <button class="close-panel" onclick="toggleA11yPanel()">Close</button>
+</div>
+
+<!-- =====================================================
+     ============ HOME PAGE ============
+===================================================== -->
+<div id="homePage" class="page" role="main" aria-label="SoftLife Home">
+
+  <!-- HOME NAV -->
+  <nav class="home-nav" aria-label="Main navigation">
+    <button class="home-nav-logo" onclick="showPage('homePage')" aria-label="SoftLife home">
+      <span aria-hidden="true">🌱</span> SoftLife
+    </button>
+    <div class="home-nav-links">
+      <button class="home-nav-link" onclick="scrollToHomeSection('features')">Features</button>
+      <button class="home-nav-link" onclick="scrollToHomeSection('how')">How It Works</button>
+      <button class="home-nav-link" onclick="scrollToHomeSection('testimonials')">Stories</button>
+      <button class="home-nav-link" onclick="showPage('aboutPage')">About Us</button>
+    </div>
+    <button class="home-nav-cta" onclick="showPage('signupPage')">Get Started Free →</button>
+  </nav>
+
+  <!-- HERO -->
+  <section class="home-hero" aria-label="Hero section">
+    <div class="home-hero-bg" aria-hidden="true">
+      <div class="home-hero-blob"></div>
+      <div class="home-hero-blob"></div>
+    </div>
+    <div class="home-hero-content">
+      <div class="home-hero-badge" aria-label="New feature">✨ Your personal growth companion</div>
+      <h1>Live Your <em>Soft Life</em><br>Every Single Day</h1>
+      <p>Track habits, log moods, set meaningful goals, and journal your journey — all in one beautifully designed space built for your wellbeing.</p>
+      <div class="home-hero-actions">
+        <button class="hero-btn-primary" onclick="showPage('signupPage')" aria-label="Start your soft life journey">
+          Start Free Today 🌱
+        </button>
+        <button class="hero-btn-ghost" onclick="showPage('loginPage')" aria-label="Sign in">
+          Already a member? →
+        </button>
+      </div>
+    </div>
+
+    <!-- ANIMATED HERO ILLUSTRATION -->
+    <div class="hero-visual" aria-hidden="true">
+      <div class="hv-phone">
+        <div class="hv-phone-inner">
+          <div class="hv-phone-header">
+            <span class="hv-dot"></span>
+            <span style="font-size:.65rem;font-weight:700;color:var(--primary);font-family:'DM Serif Display',serif;">SoftLife</span>
+            <span style="font-size:.7rem;">🌱</span>
+          </div>
+          <div class="hv-greeting">Good morning, Sara! 🌅</div>
+          <div class="hv-section-label">Today's Habits</div>
+          <div class="hv-habit hv-habit-done hv-anim-1">
+            <span class="hv-check">✓</span>
+            <span>Morning meditation</span>
+            <span class="hv-streak">🔥5</span>
+          </div>
+          <div class="hv-habit hv-habit-done hv-anim-2">
+            <span class="hv-check">✓</span>
+            <span>Drink 2L water</span>
+            <span class="hv-streak">🔥3</span>
+          </div>
+          <div class="hv-habit hv-anim-3">
+            <span class="hv-check-empty"></span>
+            <span>Evening journal</span>
+            <span class="hv-streak" style="opacity:.4">🔥1</span>
+          </div>
+          <div class="hv-section-label" style="margin-top:10px;">Today's Mood</div>
+          <div class="hv-mood-row">
+            <span class="hv-mood-btn hv-mood-sel">😄</span>
+            <span class="hv-mood-btn">🙂</span>
+            <span class="hv-mood-btn">😐</span>
+            <span class="hv-mood-btn">😕</span>
+            <span class="hv-mood-btn">😞</span>
+          </div>
+          <div class="hv-section-label" style="margin-top:10px;">Weekly Progress</div>
+          <div class="hv-progress-bar"><div class="hv-progress-fill"></div></div>
+          <div style="font-size:.55rem;color:var(--primary);font-weight:700;margin-top:3px;">67% complete 🎯</div>
+        </div>
+      </div>
+      <div class="hv-badge hv-badge-1">
+        <span>🔥</span>
+        <div>
+          <div style="font-weight:700;font-size:.72rem;color:var(--text);">5-Day Streak!</div>
+          <div style="font-size:.62rem;color:var(--muted);">Keep it up</div>
+        </div>
+      </div>
+      <div class="hv-badge hv-badge-2">
+        <span>😄</span>
+        <div>
+          <div style="font-weight:700;font-size:.72rem;color:var(--text);">Mood: Amazing</div>
+          <div style="font-size:.62rem;color:var(--muted);">Logged today</div>
+        </div>
+      </div>
+      <div class="hv-badge hv-badge-3">
+        <span>🎯</span>
+        <div>
+          <div style="font-weight:700;font-size:.72rem;color:var(--text);">Goal reached!</div>
+          <div style="font-size:.62rem;color:var(--muted);">Read 10 books</div>
+        </div>
+      </div>
+      <div class="hv-orb hv-orb-1"></div>
+      <div class="hv-orb hv-orb-2"></div>
+      <div class="hv-orb hv-orb-3"></div>
+    </div>
+  </section>
+
+  <!-- STATS STRIP -->
+  <div class="home-stats-strip" role="region" aria-label="SoftLife community stats">
+    <div class="hstrip-item">
+      <div class="hstrip-num">12K+</div>
+      <div class="hstrip-label">Active Members</div>
+    </div>
+    <div class="hstrip-item">
+      <div class="hstrip-num">98K+</div>
+      <div class="hstrip-label">Habits Tracked</div>
+    </div>
+    <div class="hstrip-item">
+      <div class="hstrip-num">4.9★</div>
+      <div class="hstrip-label">User Rating</div>
+    </div>
+    <div class="hstrip-item">
+      <div class="hstrip-num">100%</div>
+      <div class="hstrip-label">Free to Use</div>
+    </div>
+  </div>
+
+  <!-- FEATURES -->
+  <section class="home-features" id="features" role="region" aria-label="Features">
+    <div class="home-section-tag">Everything You Need</div>
+    <div class="home-section-title">Your Growth, All In One Place</div>
+    <div class="home-section-sub">SoftLife brings together all the tools you need to build a gentle, intentional life — without the overwhelm.</div>
+
+    <div class="features-grid stagger">
+      <div class="feature-card">
+        <div class="feat-card-icon" aria-hidden="true">✅</div>
+        <div class="feat-card-title">Habit Tracker</div>
+        <div class="feat-card-desc">Build powerful daily routines with streak tracking, completion stats, and gentle reminders that keep you going.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feat-card-icon" aria-hidden="true">😊</div>
+        <div class="feat-card-title">Mood Journal</div>
+        <div class="feat-card-desc">Log your emotional wellbeing daily and see patterns emerge over time with beautiful mood history charts.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feat-card-icon" aria-hidden="true">🎯</div>
+        <div class="feat-card-title">Goal Setting</div>
+        <div class="feat-card-desc">Define what matters most, set milestones, and watch your progress unfold with clear visual indicators.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feat-card-icon" aria-hidden="true">📓</div>
+        <div class="feat-card-title">Personal Journal</div>
+        <div class="feat-card-desc">Capture your thoughts, reflect on your day, and build a private story of your growth over time.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feat-card-icon" aria-hidden="true">📊</div>
+        <div class="feat-card-title">Progress Analytics</div>
+        <div class="feat-card-desc">Understand your patterns with insightful weekly charts covering habits, mood trends, and activity logs.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feat-card-icon" aria-hidden="true">🎨</div>
+        <div class="feat-card-title">Personalized Themes</div>
+        <div class="feat-card-desc">Choose your aesthetic — soft green, soft pink, or neutral — to make SoftLife truly feel like yours.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- HOW IT WORKS -->
+  <section class="home-how" id="how" role="region" aria-label="How it works">
+    <div class="home-section-tag">Simple by Design</div>
+    <div class="home-section-title">Up & Running in Minutes</div>
+    <div class="home-section-sub">No complicated setup. Just sign up, personalize, and start growing from day one.</div>
+
+    <div class="steps-grid stagger">
+      <div class="step-card">
+        <div class="step-num">1</div>
+        <div class="step-title">Create Your Account</div>
+        <div class="step-desc">Sign up free in under 60 seconds. No credit card needed — ever.</div>
+      </div>
+      <div class="step-card">
+        <div class="step-num">2</div>
+        <div class="step-title">Pick Your Theme</div>
+        <div class="step-desc">Choose your personal color theme and make SoftLife feel like home.</div>
+      </div>
+      <div class="step-card">
+        <div class="step-num">3</div>
+        <div class="step-title">Add Your Habits</div>
+        <div class="step-desc">Set up daily habits you want to build and start checking them off today.</div>
+      </div>
+      <div class="step-card">
+        <div class="step-num">4</div>
+        <div class="step-title">Track & Grow</div>
+        <div class="step-desc">Watch your streaks grow, moods improve, and goals get closer every single day.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TESTIMONIALS -->
+  <section class="home-testimonials" id="testimonials" role="region" aria-label="User testimonials">
+    <div class="home-section-tag">Real Stories</div>
+    <div class="home-section-title">People Who Love SoftLife</div>
+    <div class="home-section-sub">Join thousands of people who have transformed their daily routines and mindset.</div>
+
+    <div class="testi-grid stagger">
+      <div class="testi-card">
+        <div class="testi-stars">★★★★★</div>
+        <div class="testi-text">"SoftLife completely changed how I approach my mornings. The habit tracker keeps me accountable without feeling like a chore."</div>
+        <div class="testi-author">
+          <div class="testi-avatar" aria-hidden="true">S</div>
+          <div>
+            <div class="testi-name">Sara K.</div>
+            <div class="testi-role">Student · Using for 6 months</div>
+          </div>
+        </div>
+      </div>
+      <div class="testi-card">
+        <div class="testi-stars">★★★★★</div>
+        <div class="testi-text">"I love how the mood journal helps me spot patterns in my mental health. I feel so much more self-aware now."</div>
+        <div class="testi-author">
+          <div class="testi-avatar" aria-hidden="true">A</div>
+          <div>
+            <div class="testi-name">Ali R.</div>
+            <div class="testi-role">Professional · Using for 3 months</div>
+          </div>
+        </div>
+      </div>
+      <div class="testi-card">
+        <div class="testi-stars">★★★★★</div>
+        <div class="testi-text">"The clean design and the gentle approach make this feel so different from other apps. It actually feels like self-care."</div>
+        <div class="testi-author">
+          <div class="testi-avatar" aria-hidden="true">M</div>
+          <div>
+            <div class="testi-name">Maria T.</div>
+            <div class="testi-role">Entrepreneur · Using for 1 year</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA BANNER -->
+  <section class="home-cta-banner" role="region" aria-label="Call to action">
+    <h2>Ready to Start Your Soft Life?</h2>
+    <p>Join over 12,000 people building intentional, joyful daily routines.</p>
+    <button class="cta-banner-btn" onclick="showPage('signupPage')">Create Free Account 🌱</button>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="home-footer" role="contentinfo">
+    <div class="home-footer-brand">
+      <div style="display:flex;align-items:center;gap:8px;font-family:'DM Serif Display',serif;font-size:1.2rem;color:var(--text);">
+        <span>🌱</span> SoftLife
+      </div>
+      <p>Your personal growth companion. Track, reflect, and grow — gently, every day.</p>
+    </div>
+    <div class="home-footer-links">
+      <h5>Product</h5>
+      <ul>
+        <li><a onclick="scrollToHomeSection('features')">Features</a></li>
+        <li><a onclick="scrollToHomeSection('how')">How It Works</a></li>
+        <li><a onclick="showPage('signupPage')">Sign Up Free</a></li>
+        <li><a onclick="showPage('loginPage')">Sign In</a></li>
+      </ul>
+    </div>
+    <div class="home-footer-links">
+      <h5>Company</h5>
+      <ul>
+        <li><a onclick="showPage('aboutPage')">About Us</a></li>
+        <li><a onclick="scrollToHomeSection('testimonials')">Stories</a></li>
+        <li><a href="#" onclick="return false;">Privacy Policy</a></li>
+        <li><a href="#" onclick="return false;">Terms of Service</a></li>
+      </ul>
+    </div>
+    <div class="home-footer-links">
+      <h5>Connect</h5>
+      <ul>
+        <li><a href="#" onclick="return false;">Instagram</a></li>
+        <li><a href="#" onclick="return false;">Twitter / X</a></li>
+        <li><a href="#" onclick="return false;">Contact Us</a></li>
+        <li><a onclick="showPage('aboutPage')">Our Team</a></li>
+      </ul>
+    </div>
+  </footer>
+  <div class="home-footer-bottom">
+    <span>© 2025 SoftLife. Made with 💜 for your wellbeing.</span>
+    <span>Free forever · No ads · No data sold</span>
+  </div>
+</div>
+
+<!-- =====================================================
+     ============ ABOUT US PAGE ============
+===================================================== -->
+<div id="aboutPage" class="page" role="main" aria-label="About SoftLife">
+
+  <!-- ABOUT NAV -->
+  <nav class="home-nav" aria-label="Main navigation">
+    <button class="home-nav-logo" onclick="showPage('homePage')" aria-label="Go to home">
+      <span aria-hidden="true">🌱</span> SoftLife
+    </button>
+    <div class="home-nav-links">
+      <button class="home-nav-link" onclick="showPage('homePage')">Home</button>
+      <button class="home-nav-link" onclick="showPage('homePage');setTimeout(()=>scrollToHomeSection('features'),200)">Features</button>
+      <button class="home-nav-link" onclick="showPage('aboutPage')" style="color:var(--primary);">About Us</button>
+    </div>
+    <button class="home-nav-cta" onclick="showPage('signupPage')">Get Started Free →</button>
+  </nav>
+
+  <!-- ABOUT HERO -->
+  <div class="about-hero">
+    <div class="home-section-tag">Our Story</div>
+    <h1>We Believe in <em>Gentle</em> Growth</h1>
+    <p>SoftLife was born from a simple belief: self-improvement doesn't have to be harsh, rigid, or overwhelming. It can be soft, intentional, and deeply personal.</p>
+  </div>
+
+  <!-- MISSION -->
+  <section class="about-mission" role="region" aria-label="Our mission">
+    <div class="about-mission-visual">
+      <div class="mission-tile">
+        <div class="mission-tile-icon" aria-hidden="true">🌱</div>
+        <div class="mission-tile-text">
+          <h4>Gentle by Design</h4>
+          <p>No streaks lost because of one missed day. We design for humans, not robots.</p>
+        </div>
+      </div>
+      <div class="mission-tile">
+        <div class="mission-tile-icon" aria-hidden="true">🔒</div>
+        <div class="mission-tile-text">
+          <h4>Privacy First</h4>
+          <p>Your data lives in your browser. We never sell, share, or exploit your personal information.</p>
+        </div>
+      </div>
+      <div class="mission-tile">
+        <div class="mission-tile-icon" aria-hidden="true">💜</div>
+        <div class="mission-tile-text">
+          <h4>Built with Care</h4>
+          <p>Every feature is thoughtfully designed to support your wellbeing — nothing more, nothing less.</p>
+        </div>
+      </div>
+      <div class="mission-tile">
+        <div class="mission-tile-icon" aria-hidden="true">✨</div>
+        <div class="mission-tile-text">
+          <h4>Free Forever</h4>
+          <p>Core features are free — always. Growth tools should be accessible to everyone.</p>
+        </div>
+      </div>
+    </div>
+    <div class="about-mission-text">
+      <div class="home-section-tag">Our Mission</div>
+      <h2>Empowering Everyday<br>Intentional Living</h2>
+      <p>We started SoftLife because we noticed that most productivity apps are designed for hustle culture — loud, aggressive, and often guilt-inducing when you fall short.</p>
+      <p>We wanted something different. A space where you can show up as you are, track what matters to you, and grow at your own pace without judgment.</p>
+      <p>Whether you're building your first morning routine, recovering from burnout, or simply trying to be a bit more mindful — SoftLife is here to gently support you every step of the way.</p>
+    </div>
+  </section>
+
+  <!-- VALUES -->
+  <section class="about-values" role="region" aria-label="Our values">
+    <div class="home-section-tag">What We Stand For</div>
+    <div class="home-section-title">Our Core Values</div>
+    <div class="home-section-sub">Every decision we make at SoftLife is guided by these principles.</div>
+
+    <div class="values-grid stagger">
+      <div class="value-card">
+        <span class="value-emoji" aria-hidden="true">🤍</span>
+        <div class="value-title">Compassion Over Pressure</div>
+        <div class="value-desc">We celebrate every small win. Missing a day is human — our app is designed to welcome you back, not punish you.</div>
+      </div>
+      <div class="value-card">
+        <span class="value-emoji" aria-hidden="true">🔍</span>
+        <div class="value-title">Radical Transparency</div>
+        <div class="value-desc">No hidden fees, no dark patterns, no selling your data. What you see is what you get — always.</div>
+      </div>
+      <div class="value-card">
+        <span class="value-emoji" aria-hidden="true">♿</span>
+        <div class="value-title">Accessibility for All</div>
+        <div class="value-desc">We build for everyone — screen readers, high contrast, text scaling, and keyboard navigation are core features, not afterthoughts.</div>
+      </div>
+      <div class="value-card">
+        <span class="value-emoji" aria-hidden="true">🌍</span>
+        <div class="value-title">Community First</div>
+        <div class="value-desc">SoftLife is shaped by its community. User feedback directly influences every feature we build and every choice we make.</div>
+      </div>
+      <div class="value-card">
+        <span class="value-emoji" aria-hidden="true">🎨</span>
+        <div class="value-title">Beauty with Purpose</div>
+        <div class="value-desc">Design isn't decoration — it's the foundation of a calm, focused experience. We obsess over every pixel because you deserve it.</div>
+      </div>
+      <div class="value-card">
+        <span class="value-emoji" aria-hidden="true">📈</span>
+        <div class="value-title">Sustainable Growth</div>
+        <div class="value-desc">Real change happens slowly. We design features that encourage long-term habits, not quick-fix shortcuts.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TEAM -->
+  <section class="about-team" role="region" aria-label="Our team">
+    <div class="home-section-tag">The People Behind SoftLife</div>
+    <div class="home-section-title">Meet Our Team</div>
+    <div class="home-section-sub">A small, passionate team dedicated to building something genuinely good for you.</div>
+
+    <div class="team-grid stagger">
+      <div class="team-card">
+        <div class="team-avatar" aria-hidden="true">Z</div>
+        <div class="team-name">Zara Ahmed</div>
+        <div class="team-role">Founder & CEO</div>
+        <div class="team-bio">Former wellness coach turned builder. Zara started SoftLife after struggling to find an app that didn't feel like a second job.</div>
+      </div>
+      <div class="team-card">
+        <div class="team-avatar" aria-hidden="true">K</div>
+        <div class="team-name">Kamil Raza</div>
+        <div class="team-role">Head of Design</div>
+        <div class="team-bio">UX researcher with a love for calm, accessible interfaces. Every soft gradient is Kamil's handiwork.</div>
+      </div>
+      <div class="team-card">
+        <div class="team-avatar" aria-hidden="true">P</div>
+        <div class="team-name">Priya Sharma</div>
+        <div class="team-role">Lead Engineer</div>
+        <div class="team-bio">Builds everything that powers SoftLife with a focus on privacy-first, lightning-fast code that just works.</div>
+      </div>
+      <div class="team-card">
+        <div class="team-avatar" aria-hidden="true">T</div>
+        <div class="team-name">Tariq Hassan</div>
+        <div class="team-role">Community & Support</div>
+        <div class="team-bio">The human behind every reply. Tariq makes sure every SoftLife member feels seen, heard, and supported.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TIMELINE -->
+  <section class="about-timeline" role="region" aria-label="Our journey">
+    <div style="text-align:center;">
+      <div class="home-section-tag">Our Journey</div>
+      <div class="home-section-title">How SoftLife Grew</div>
+    </div>
+
+    <div class="timeline-wrap">
+      <div class="timeline-item">
+        <div class="tl-left"><div class="tl-dot">1</div><div class="tl-line"></div></div>
+        <div class="tl-right">
+          <div class="tl-year">2022 · The Idea</div>
+          <div class="tl-title">Born from a Burnout</div>
+          <div class="tl-desc">Zara, after recovering from burnout, sketched the first version of SoftLife in a notebook — a simple habit tracker that felt kind, not demanding.</div>
+        </div>
+      </div>
+      <div class="timeline-item">
+        <div class="tl-left"><div class="tl-dot">2</div><div class="tl-line"></div></div>
+        <div class="tl-right">
+          <div class="tl-year">2023 · First Release</div>
+          <div class="tl-title">Beta Launched to 200 Users</div>
+          <div class="tl-desc">Our closed beta attracted 200 passionate early adopters. Their feedback shaped nearly every feature you see today in the app.</div>
+        </div>
+      </div>
+      <div class="timeline-item">
+        <div class="tl-left"><div class="tl-dot">3</div><div class="tl-line"></div></div>
+        <div class="tl-right">
+          <div class="tl-year">2024 · Growth</div>
+          <div class="tl-title">Reaching 12,000 Members</div>
+          <div class="tl-desc">Word-of-mouth growth carried SoftLife to 12,000 active members across 40+ countries, with mood journaling becoming our most-loved feature.</div>
+        </div>
+      </div>
+      <div class="timeline-item">
+        <div class="tl-left"><div class="tl-dot">4</div><div class="tl-line"></div></div>
+        <div class="tl-right">
+          <div class="tl-year">2025 · Today</div>
+          <div class="tl-title">Bigger, Softer, Better</div>
+          <div class="tl-desc">Analytics, milestones, activities tracking, full accessibility support, and dark mode — and we're just getting started.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="about-faq" role="region" aria-label="Frequently asked questions">
+    <div style="text-align:center;">
+      <div class="home-section-tag">Got Questions?</div>
+      <div class="home-section-title">Frequently Asked Questions</div>
+    </div>
+
+    <div class="faq-list">
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)" aria-expanded="false">
+          Is SoftLife really free? <span aria-hidden="true">+</span>
+        </button>
+        <div class="faq-a">Yes, completely free! All core features — habit tracking, mood logging, goal setting, journaling, and analytics — are available at no cost. We believe personal growth tools should be accessible to everyone.</div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)" aria-expanded="false">
+          Is my data private and secure? <span aria-hidden="true">+</span>
+        </button>
+        <div class="faq-a">Absolutely. All your data is stored locally in your browser using localStorage. Nothing is sent to external servers unless you explicitly choose to sync. We never sell or share your personal information.</div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)" aria-expanded="false">
+          Can I use SoftLife on mobile? <span aria-hidden="true">+</span>
+        </button>
+        <div class="faq-a">Yes! SoftLife is fully responsive and works beautifully on phones and tablets. Open it in your mobile browser and add it to your home screen for an app-like experience.</div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)" aria-expanded="false">
+          What makes SoftLife different from other apps? <span aria-hidden="true">+</span>
+        </button>
+        <div class="faq-a">SoftLife is designed around compassion, not pressure. There's no aggressive streak punishment, no push notifications demanding you perform, no gamification that makes missing a day feel catastrophic. It's a calm, beautiful space to grow at your own pace.</div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)" aria-expanded="false">
+          How do I choose a theme? <span aria-hidden="true">+</span>
+        </button>
+        <div class="faq-a">When you sign up, you choose between Soft Green (Male theme), Soft Pink (Female theme), or the default Soft Purple neutral theme. Your entire dashboard adapts to your chosen palette. You can always start fresh with a new account to switch themes.</div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)" aria-expanded="false">
+          How can I contact the SoftLife team? <span aria-hidden="true">+</span>
+        </button>
+        <div class="faq-a">Use the newsletter form below to reach out, or send us an email at hello@softlife.app. Our team typically responds within 24 hours and we genuinely love hearing from our community.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTACT CTA -->
+  <section class="about-contact" role="region" aria-label="Stay in touch">
+    <div class="contact-card">
+      <h2>Stay in the Loop 💌</h2>
+      <p>Get updates on new features, wellness tips, and SoftLife community news delivered gently to your inbox — never spammy.</p>
+      <div class="contact-email-row">
+        <input type="email" class="contact-email-input" id="contactEmail" placeholder="your@email.com" aria-label="Your email address">
+        <button class="contact-send-btn" onclick="handleContactSubmit()" aria-label="Subscribe">Subscribe →</button>
+      </div>
+      <div id="contactMsg" style="margin-top:12px;font-size:.85rem;color:var(--primary);display:none;"></div>
+    </div>
+  </section>
+
+  <!-- FOOTER (reused) -->
+  <footer class="home-footer" role="contentinfo">
+    <div class="home-footer-brand">
+      <div style="display:flex;align-items:center;gap:8px;font-family:'DM Serif Display',serif;font-size:1.2rem;color:var(--text);">
+        <span>🌱</span> SoftLife
+      </div>
+      <p>Your personal growth companion. Track, reflect, and grow — gently, every day.</p>
+    </div>
+    <div class="home-footer-links">
+      <h5>Product</h5>
+      <ul>
+        <li><a onclick="showPage('homePage');setTimeout(()=>scrollToHomeSection('features'),200)">Features</a></li>
+        <li><a onclick="showPage('homePage');setTimeout(()=>scrollToHomeSection('how'),200)">How It Works</a></li>
+        <li><a onclick="showPage('signupPage')">Sign Up Free</a></li>
+        <li><a onclick="showPage('loginPage')">Sign In</a></li>
+      </ul>
+    </div>
+    <div class="home-footer-links">
+      <h5>Company</h5>
+      <ul>
+        <li><a onclick="showPage('aboutPage')">About Us</a></li>
+        <li><a href="#" onclick="return false;">Privacy Policy</a></li>
+        <li><a href="#" onclick="return false;">Terms of Service</a></li>
+      </ul>
+    </div>
+  </footer>
+  <div class="home-footer-bottom">
+    <span>© 2025 SoftLife. Made with 💜 for your wellbeing.</span>
+    <span>Free forever · No ads · No data sold</span>
+  </div>
+</div>
+
+<!-- =====================================================
+     ============ LOGIN PAGE ============
+===================================================== -->
+<div id="loginPage" class="page" role="main">
+  <div class="auth-wrap">
+    <div class="auth-visual" aria-hidden="true">
+      <div class="auth-visual-brand">
+        <span class="logo">🌱</span>
+        <h1>Your Soft Life<br><em>Journey Awaits</em></h1>
+        <p>Track habits, uplift your mood, reach your goals — all in one gentle, beautiful space.</p>
+      </div>
+      <div class="auth-visual-features">
+        <div class="feat-item"><span class="feat-icon">✅</span> Daily Habit Tracker</div>
+        <div class="feat-item"><span class="feat-icon">😊</span> Mood & Wellbeing Log</div>
+        <div class="feat-item"><span class="feat-icon">🎯</span> Goal Setting & Milestones</div>
+        <div class="feat-item"><span class="feat-icon">📓</span> Personal Journal</div>
+        <div class="feat-item"><span class="feat-icon">📊</span> Progress Analytics</div>
+      </div>
+      <div class="auth-visual-map">
+        <iframe
+          title="SoftLife community world map"
+          src="https://www.google.com/maps/embed?pb=!1m14!1m12!1m3!1d15372183.46!2d69.3!3d30.3!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!5e0!3m2!1sen!2spk!4v1700000000000"
+          allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"
+          aria-label="Global wellness community map">
+        </iframe>
+      </div>
+    </div>
+
+    <div class="auth-form-panel" id="main-content">
+      <h2>Welcome back 👋</h2>
+      <p class="sub">Sign in to continue your soft life journey</p>
+
+      <div id="loginAlert" class="alert-box" role="alert" aria-live="assertive"></div>
+
+      <form id="loginForm" novalidate aria-label="Sign in form" onsubmit="handleLogin(event)">
+        <div class="form-group">
+          <label for="loginEmail">Email Address</label>
+          <div class="input-wrap">
+            <span class="ico" aria-hidden="true">✉️</span>
+            <input type="email" id="loginEmail" class="form-input" placeholder="you@email.com"
+                   required autocomplete="email" aria-required="true"
+                   maxlength="150" oninput="validateEmail(this)">
+          </div>
+          <div class="field-hint" id="loginEmailHint"></div>
+        </div>
+
+        <div class="form-group">
+          <label for="loginPassword">Password</label>
+          <div class="input-wrap">
+            <span class="ico" aria-hidden="true">🔒</span>
+            <input type="password" id="loginPassword" class="form-input" placeholder="Your password"
+                   required autocomplete="current-password" aria-required="true"
+                   minlength="8" maxlength="20" oninput="validatePassword(this,'loginPwHint')">
+            <button type="button" class="eye-btn" onclick="togglePw('loginPassword',this)" aria-label="Show password">👁</button>
+          </div>
+          <div class="field-hint" id="loginPwHint"></div>
+        </div>
+
+
+
+
+        <button type="submit" class="btn-primary" id="loginBtn" aria-label="Sign in">
+          <span id="loginBtnText">Sign In</span> <span aria-hidden="true">→</span>
+        </button>
+      </form>
+
+      <div class="divider">or</div>
+      <div class="auth-switch">
+        Don't have an account? <a onclick="showPage('signupPage')" role="button" tabindex="0"
+          onkeydown="if(event.key==='Enter')showPage('signupPage')">Create one →</a>
+      </div>
+      <div class="auth-switch" style="margin-top:10px;">
+        <a onclick="showPage('homePage')" role="button" tabindex="0" style="color:var(--muted);font-weight:500;">← Back to Home</a>
+        &nbsp;·&nbsp;
+        <a onclick="showPage('aboutPage')" role="button" tabindex="0" style="color:var(--muted);font-weight:500;">About Us</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- =====================================================
+     ============ SIGNUP PAGE ============
+===================================================== -->
+<div id="signupPage" class="page" role="main">
+  <div class="signup-wrap">
+    <div class="signup-visual" aria-hidden="true">
+      <div>
+        <span style="font-size:2.4rem;display:block;margin-bottom:12px;">🚀</span>
+        <div style="font-family:'DM Serif Display',serif;font-size:1.9rem;line-height:1.2;margin-bottom:12px;">Start Your<br>Soft Life</div>
+        <p style="font-size:.88rem;opacity:.85;line-height:1.6;">Join thousands living intentionally. Track what matters. Celebrate every win.</p>
+      </div>
+      <div>
+        <div style="font-size:.75rem;font-weight:800;text-transform:uppercase;letter-spacing:.7px;opacity:.7;margin-bottom:10px;">Choose Your Theme</div>
+        <div style="font-size:.85rem;opacity:.8;line-height:1.7;">
+          💚 Male → Soft Green<br>
+          🌸 Female → Soft Pink<br>
+          Your theme personalizes your entire experience.
+        </div>
+      </div>
+      <div>
+        <iframe
+          title="Signup page map"
+          src="https://www.google.com/maps/embed?pb=!1m14!1m12!1m3!1d15372183.46!2d69.3!3d30.3!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!5e0!3m2!1sen!2spk!4v1700000000000"
+          allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"
+          style="width:100%;height:130px;border:none;border-radius:10px;display:block;"
+          aria-label="Map">
+        </iframe>
+      </div>
+    </div>
+
+    <div class="signup-form-panel">
+      <h2>Create Account ✨</h2>
+      <p class="sub">Join SoftLife and grow every day</p>
+
+      <div id="signupAlert" class="alert-box" role="alert" aria-live="assertive"></div>
+
+      <!-- GENDER PICKER -->
+      <div class="gender-picker" role="group" aria-label="Choose your theme">
+        <button type="button" class="g-btn" id="maleBtn" onclick="setGender('male')"
+                aria-pressed="false" aria-label="Select male / green theme">
+          ♂️ Male
+        </button>
+        <button type="button" class="g-btn" id="femaleBtn" onclick="setGender('female')"
+                aria-pressed="false" aria-label="Select female / pink theme">
+          ♀️ Female
+        </button>
+      </div>
+
+      <form id="signupForm" novalidate aria-label="Create account form" onsubmit="handleSignup(event)">
+        <input type="hidden" id="genderInput" name="gender" value="">
+
+        <div class="form-group">
+          <label for="signupUsername">Username <span style="color:var(--muted);font-weight:400">(4–15 chars)</span></label>
+          <div class="input-wrap">
+            <span class="ico" aria-hidden="true">👤</span>
+            <input type="text" id="signupUsername" class="form-input" placeholder="softlife_user"
+                   required minlength="4" maxlength="15" autocomplete="off"
+                   aria-required="true" aria-describedby="usernameHint"
+                   oninput="validateUsername(this)">
+          </div>
+          <div class="field-hint" id="usernameHint">4–15 characters, letters and numbers only</div>
+        </div>
+
+        <div class="form-group">
+          <label for="signupEmail">Email Address</label>
+          <div class="input-wrap">
+            <span class="ico" aria-hidden="true">✉️</span>
+            <input type="email" id="signupEmail" class="form-input" placeholder="you@email.com"
+                   required autocomplete="off" maxlength="150" aria-required="true"
+                   oninput="validateEmail(this)">
+          </div>
+          <div class="field-hint" id="signupEmailHint"></div>
+        </div>
+
+        <div class="form-row-2">
+          <div class="form-group">
+            <label for="signupPassword">Password</label>
+            <div class="input-wrap">
+              <span class="ico" aria-hidden="true">🔒</span>
+              <input type="password" id="signupPassword" class="form-input" placeholder="Min. 8 chars"
+                     required minlength="8" maxlength="20" aria-required="true"
+                     aria-describedby="signupPwHint"
+                     oninput="validatePassword(this,'signupPwHint');checkPwStrength(this.value)">
+              <button type="button" class="eye-btn" onclick="togglePw('signupPassword',this)" aria-label="Show password">👁</button>
+            </div>
+            <div class="pw-strength" id="pwStrength" style="display:none;">
+              <div class="pw-strength-bar"><div class="pw-strength-fill" id="pwStrengthFill"></div></div>
+              <span class="pw-strength-label" id="pwStrengthLabel"></span>
+            </div>
+            <div class="field-hint" id="signupPwHint">8–20 characters, letters + numbers required</div>
+          </div>
+          <div class="form-group">
+            <label for="confirmPassword">Confirm Password</label>
+            <div class="input-wrap">
+              <span class="ico" aria-hidden="true">🔒</span>
+              <input type="password" id="confirmPassword" class="form-input" placeholder="Repeat password"
+                     required maxlength="20" aria-required="true"
+                     oninput="validateConfirmPw(this)">
+              <button type="button" class="eye-btn" onclick="togglePw('confirmPassword',this)" aria-label="Show confirm password">👁</button>
+            </div>
+            <div class="field-hint" id="confirmPwHint"></div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="signupDob">Date of Birth</label>
+          <div class="input-wrap">
+            <span class="ico" aria-hidden="true">🎂</span>
+            <input type="date" id="signupDob" class="form-input" aria-label="Date of birth">
+          </div>
+        </div>
+
+
+        <!-- ── reCAPTCHA Style Verification ── -->
+        <div class="form-group">
+          <label id="signupCaptchaLabel">🔐 Verify You're Human</label>
+          <div class="rc-signup-wrap" role="group" aria-labelledby="signupCaptchaLabel">
+            <!-- Checkbox row -->
+            <div class="rc-signup-row" id="rcSignupRow">
+              <label class="rc-signup-label" for="rcSignupCheck">
+                <input type="checkbox" id="rcSignupCheck" class="rc-signup-hidden"
+                       onchange="rcSignupVerify(this)" aria-label="I am not a robot">
+                <span class="rc-signup-box" id="rcSignupBox"></span>
+                <span class="rc-signup-text">I'm not a robot</span>
+              </label>
+              <div class="rc-signup-logo">
+                <svg width="34" height="34" viewBox="0 0 64 64" fill="none">
+                  <circle cx="32" cy="32" r="30" fill="#4a90d9"/>
+                  <path d="M32 10C20 10 10 20 10 32C10 44 20 54 32 54C44 54 54 44 54 32"
+                        stroke="white" stroke-width="4.5" stroke-linecap="round"/>
+                  <path d="M44 10L54 20L44 30" stroke="white" stroke-width="4.5"
+                        stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <span class="rc-brand-text">reCAPTCHA</span>
+                <span class="rc-small-links">Privacy · Terms</span>
+              </div>
+            </div>
+            <!-- Verifying spinner -->
+            <div class="rc-verifying-row" id="rcSignupVerifying" style="display:none;">
+              <div class="rc-spinner-ring"></div>
+              <span>Verifying…</span>
+            </div>
+            <!-- Success row -->
+            <div class="rc-success-row" id="rcSignupSuccess" style="display:none;">
+              <svg width="22" height="22" viewBox="0 0 22 22">
+                <circle cx="11" cy="11" r="11" fill="#4ade80"/>
+                <path d="M6 11l4 4 6-6" stroke="white" stroke-width="2.2"
+                      stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              <span>✅ Verified — You are not a robot!</span>
+            </div>
+          </div>
+          <div class="field-hint" id="signupCaptchaHint" style="color:#ef4444;display:none;">
+            ⚠️ Please verify that you're not a robot.
+          </div>
+        </div>
+
+        <div class="terms-row">
+          <input type="checkbox" id="termsCheck" class="terms-checkbox" required aria-required="true">
+          <label for="termsCheck" class="terms-label">
+            I agree to the <a href="#" onclick="return false;">Terms of Service</a> and
+            <a href="#" onclick="return false;">Privacy Policy</a>
+          </label>
+        </div>
+
+        <button type="submit" class="btn-primary" id="signupBtn" aria-label="Create account">
+          <span id="signupBtnText">Create My Account</span> 🚀
+        </button>
+      </form>
+
+      <div class="auth-switch" style="margin-top:16px;">
+        Already have an account?
+        <a onclick="showPage('loginPage')" role="button" tabindex="0"
+           onkeydown="if(event.key==='Enter')showPage('loginPage')">Sign In →</a>
+      </div>
+      <div class="auth-switch" style="margin-top:10px;">
+        <a onclick="showPage('homePage')" role="button" tabindex="0" style="color:var(--muted);font-weight:500;">← Back to Home</a>
+        &nbsp;·&nbsp;
+        <a onclick="showPage('aboutPage')" role="button" tabindex="0" style="color:var(--muted);font-weight:500;">About Us</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- =====================================================
+     ============ DASHBOARD ============
+===================================================== -->
+<div id="dashPage" class="page" role="main" aria-label="Dashboard">
+
+  <!-- SIDEBAR -->
+  <nav id="sidebar" role="navigation" aria-label="Main navigation">
+    <div class="sidebar-header">
+      <span class="sidebar-logo" aria-hidden="true">🌱</span>
+      <span class="sidebar-brand">SoftLife</span>
+      <button class="sidebar-toggle" onclick="toggleSidebar()" aria-label="Collapse sidebar" id="sidebarToggleBtn">◀</button>
+    </div>
+
+    <div class="sidebar-nav">
+      <div class="nav-section-label">Main</div>
+      <a class="nav-item active" onclick="showSection('overview')" role="button" tabindex="0" data-section="overview" aria-label="Dashboard overview">
+        <span class="nav-icon" aria-hidden="true">🏡</span>
+        <span class="nav-label">Dashboard</span>
+      </a>
+      <a class="nav-item" onclick="showSection('habits')" role="button" tabindex="0" data-section="habits" aria-label="Habits tracker">
+        <span class="nav-icon" aria-hidden="true">✅</span>
+        <span class="nav-label">Habits</span>
+      </a>
+      <a class="nav-item" onclick="showSection('mood')" role="button" tabindex="0" data-section="mood" aria-label="Mood log">
+        <span class="nav-icon" aria-hidden="true">😊</span>
+        <span class="nav-label">Mood Log</span>
+      </a>
+      <a class="nav-item" onclick="showSection('activities')" role="button" tabindex="0" data-section="activities" aria-label="Activities">
+        <span class="nav-icon" aria-hidden="true">🏃</span>
+        <span class="nav-label">Activities</span>
+      </a>
+
+      <div class="nav-section-label">Growth</div>
+      <a class="nav-item" onclick="showSection('goals')" role="button" tabindex="0" data-section="goals" aria-label="Goals">
+        <span class="nav-icon" aria-hidden="true">🎯</span>
+        <span class="nav-label">Goals</span>
+      </a>
+      <a class="nav-item" onclick="showSection('journal')" role="button" tabindex="0" data-section="journal" aria-label="Journal">
+        <span class="nav-icon" aria-hidden="true">📓</span>
+        <span class="nav-label">Journal</span>
+      </a>
+      <a class="nav-item" onclick="showSection('milestones')" role="button" tabindex="0" data-section="milestones" aria-label="Milestones & streaks">
+        <span class="nav-icon" aria-hidden="true">🏅</span>
+        <span class="nav-label">Milestones</span>
+      </a>
+      <a class="nav-item" onclick="showSection('analytics')" role="button" tabindex="0" data-section="analytics" aria-label="Analytics">
+        <span class="nav-icon" aria-hidden="true">📊</span>
+        <span class="nav-label">Analytics</span>
+      </a>
+
+      <div class="nav-section-label">Account</div>
+      <a class="nav-item" onclick="showSection('profile')" role="button" tabindex="0" data-section="profile" aria-label="Profile">
+        <span class="nav-icon" aria-hidden="true">👤</span>
+        <span class="nav-label">Profile</span>
+      </a>
+      <a class="nav-item" onclick="showPage('homePage')" role="button" tabindex="0" aria-label="Go to Home page">
+        <span class="nav-icon" aria-hidden="true">🏠</span>
+        <span class="nav-label">Home Page</span>
+      </a>
+      <a class="nav-item" onclick="showPage('aboutPage')" role="button" tabindex="0" aria-label="About Us">
+        <span class="nav-icon" aria-hidden="true">ℹ️</span>
+        <span class="nav-label">About Us</span>
+      </a>
+      <a class="nav-item nav-feedback-btn" onclick="openFeedbackModal()" role="button" tabindex="0" aria-label="Send Feedback">
+        <span class="nav-icon" aria-hidden="true">
+          <svg width="18" height="18" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="2" y="3" width="16" height="11" rx="3" stroke="currentColor" stroke-width="1.6"/>
+            <circle cx="7"  cy="8.5" r="1.2" fill="currentColor"/>
+            <circle cx="10" cy="8.5" r="1.2" fill="currentColor"/>
+            <circle cx="13" cy="8.5" r="1.2" fill="currentColor"/>
+            <path d="M6 14l-3 3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+          </svg>
+        </span>
+        <span class="nav-label">Feedback</span>
+      </a>
+      <a class="nav-item" onclick="handleLogout()" role="button" tabindex="0" aria-label="Log out">
+        <span class="nav-icon" aria-hidden="true">🚪</span>
+        <span class="nav-label">Log Out</span>
+      </a>
+    </div>
+
+    <div class="sidebar-user">
+      <div class="user-avatar" id="sidebarAvatar" aria-hidden="true">U</div>
+      <div class="user-info">
+        <div class="user-name" id="sidebarUsername">User</div>
+        <div class="user-role">SoftLife Member</div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- SIDEBAR OVERLAY (mobile) -->
+  <div id="sidebarOverlay" onclick="closeMobileSidebar()"
+       style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:399;"
+       aria-hidden="true"></div>
+
+  <!-- TOPBAR -->
+  <header id="topbar" role="banner">
+    <button class="hamburger-btn" onclick="openMobileSidebar()" aria-label="Open navigation menu" aria-expanded="false" id="hamburgerBtn">☰</button>
+    <h1 class="topbar-title" id="topbarTitle">Dashboard</h1>
+
+    <!-- Fix #8: Mobile search icon — hidden on desktop, shown on ≤640px -->
+    <button id="mobileSearchBtn"
+            style="display:none;background:none;border:none;cursor:pointer;font-size:1.15rem;padding:6px;color:var(--text);flex-shrink:0;"
+            onclick="toggleMobileSearch()"
+            aria-label="Open search" title="Search">🔍</button>
+
+    <!-- ── SEARCH BAR ── -->
+    <div class="topbar-search-wrap" id="topbarSearchWrap">
+      <span class="tsw-icon">🔍</span>
+      <input id="topbarSearchInput" class="tsw-input" type="text"
+             placeholder="Search habits, goals, journal…"
+             oninput="runTopbarSearch(this.value)"
+             onkeydown="if(event.key==='Escape'){this.value='';runTopbarSearch('');}"
+             aria-label="Search" autocomplete="off">
+      <button class="tsw-clear" id="tswClear" onclick="document.getElementById('topbarSearchInput').value='';runTopbarSearch('');" aria-label="Clear search">✕</button>
+    </div>
+    <div id="topbarSearchResults" class="tsw-results" role="listbox" aria-label="Search results"></div>
+
+    <div class="topbar-actions">
+      <button class="topbar-btn" onclick="showPage('homePage')" aria-label="Go to Home page" title="Home Page">🏠</button>
+      <button class="topbar-btn" onclick="showPage('aboutPage')" aria-label="About Us" title="About Us">ℹ️</button>
+      <button class="topbar-btn dark-toggle" onclick="toggleDark()" aria-label="Toggle dark mode" title="Dark Mode">🌙</button>
+      <button class="topbar-btn" onclick="showSection('profile')" aria-label="Profile" title="Profile">👤</button>
+    </div>
+  </header>
+
+  <!-- ── MAIN CONTENT AREA ── -->
+  <div class="dash-main" id="dashMain">
+
+    <!-- ─── OVERVIEW ─── -->
+    <section class="dash-section active" id="overview" aria-label="Dashboard overview">
+      <div class="section-header">
+        <h2 id="overviewGreeting">Good morning! 🌤️</h2>
+        <p id="overviewDate">Loading date…</p>
+      </div>
+
+      <!-- STATS -->
+      <div class="stats-grid" aria-label="Today's stats">
+        <div class="stat-card" role="article" aria-label="Habits today">
+          <div class="stat-icon" aria-hidden="true">✅</div>
+          <div class="stat-val" id="statHabits">0/0</div>
+          <div class="stat-label">Habits Today</div>
+          <div class="stat-trend trend-up" id="statHabitsTrend">Start tracking!</div>
+        </div>
+        <div class="stat-card" role="article" aria-label="Current mood">
+          <div class="stat-icon" aria-hidden="true">😊</div>
+          <div class="stat-val" id="statMood">—</div>
+          <div class="stat-label">Today's Mood</div>
+          <div class="stat-trend" id="statMoodTrend" style="color:var(--muted)">Log your mood</div>
+        </div>
+        <div class="stat-card" role="article" aria-label="Active goals">
+          <div class="stat-icon" aria-hidden="true">🎯</div>
+          <div class="stat-val" id="statGoals">0</div>
+          <div class="stat-label">Active Goals</div>
+          <div class="stat-trend trend-up" id="statGoalsTrend">Keep going!</div>
+        </div>
+        <div class="stat-card" role="article" aria-label="Day streak">
+          <div class="stat-icon" aria-hidden="true">🔥</div>
+          <div class="stat-val" id="statStreak">1</div>
+          <div class="stat-label">Day Streak</div>
+          <div class="stat-trend trend-up">You're on fire!</div>
+        </div>
+      </div>
+
+      <!-- MAIN GRID -->
+      <div class="content-grid">
+        <!-- Today's Habits Quick View -->
+        <div class="card">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+            <h3 style="font-family:'DM Serif Display',serif;font-size:1.1rem;">Today's Habits</h3>
+            <button class="add-btn" onclick="showSection('habits')" style="font-size:.76rem;padding:6px 12px;">View All</button>
+          </div>
+          <div id="overviewHabits"></div>
+        </div>
+
+        <!-- Quick Mood -->
+        <div class="card">
+          <div style="margin-bottom:14px;">
+            <h3 style="font-family:'DM Serif Display',serif;font-size:1.1rem;">How are you feeling?</h3>
+            <p style="font-size:.8rem;color:var(--text2);margin-top:4px;">Log today's mood</p>
+          </div>
+          <div class="mood-grid" id="overviewMoodBtns">
+            <button class="mood-btn" onclick="logMood('😄','Amazing')" aria-label="Amazing mood"><span class="mood-emoji">😄</span><span class="mood-label">Amazing</span></button>
+            <button class="mood-btn" onclick="logMood('🙂','Happy')" aria-label="Happy mood"><span class="mood-emoji">🙂</span><span class="mood-label">Happy</span></button>
+            <button class="mood-btn" onclick="logMood('😐','Neutral')" aria-label="Neutral mood"><span class="mood-emoji">😐</span><span class="mood-label">Neutral</span></button>
+            <button class="mood-btn" onclick="logMood('😕','Sad')" aria-label="Sad mood"><span class="mood-emoji">😕</span><span class="mood-label">Sad</span></button>
+            <button class="mood-btn" onclick="logMood('😞','Rough')" aria-label="Rough mood"><span class="mood-emoji">😞</span><span class="mood-label">Rough</span></button>
+          </div>
+          <div id="moodFeedback" style="margin-top:12px;font-size:.85rem;color:var(--text2);text-align:center;"></div>
+        </div>
+      </div>
+
+      <!-- GOALS + STREAK -->
+      <div class="content-grid">
+        <div class="card">
+          <h3 style="font-family:'DM Serif Display',serif;font-size:1.1rem;margin-bottom:14px;">Active Goals</h3>
+          <div id="overviewGoals"></div>
+        </div>
+        <div class="card">
+          <h3 style="font-family:'DM Serif Display',serif;font-size:1.1rem;margin-bottom:6px;">Weekly Streak 🔥</h3>
+          <p style="font-size:.78rem;color:var(--muted);margin-bottom:14px;">Your activity this week</p>
+          <div class="streak-bar" id="overviewStreak" aria-label="Weekly streak">
+            <div class="streak-day active" title="Mon"></div>
+            <div class="streak-day active" title="Tue"></div>
+            <div class="streak-day active" title="Wed"></div>
+            <div class="streak-day today" title="Thu – Today"></div>
+            <div class="streak-day" title="Fri"></div>
+            <div class="streak-day" title="Sat"></div>
+            <div class="streak-day" title="Sun"></div>
+          </div>
+          <div style="display:flex;justify-content:space-between;margin-top:6px;font-size:.7rem;color:var(--muted);">
+            <span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span>
+          </div>
+          <div style="margin-top:16px;padding:12px;background:var(--bg);border-radius:var(--radius-sm);">
+            <div style="font-size:.8rem;font-weight:700;color:var(--text2);margin-bottom:6px;">This Week's Progress</div>
+            <div class="progress-wrap">
+              <div class="progress-label"><span>Overall</span><span id="weeklyPercent">57%</span></div>
+              <div class="progress-bar"><div class="progress-fill" id="weeklyFill" style="width:57%"></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- MAP -->
+      <div class="map-dash-card" role="complementary" aria-label="Location map">
+        <div class="map-dash-header"><span aria-hidden="true">📍</span> Your Location & Community</div>
+        <iframe class="map-dash-frame"
+          title="SoftLife community map"
+          src="https://www.google.com/maps/embed?pb=!1m14!1m12!1m3!1d15372183.46!2d69.3!3d30.3!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!5e0!3m2!1sen!2spk!4v1700000000000"
+          allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade">
+        </iframe>
+      </div>
+    </section>
+
+    <!-- ─── HABITS ─── -->
+    <section class="dash-section" id="habits" aria-label="Habits tracker">
+      <div class="section-header">
+        <h2>Habits Tracker ✅</h2>
+        <p>Build your daily routines, one check at a time</p>
+      </div>
+      <div class="quick-add" role="form" aria-label="Add new habit">
+        <div class="input-wrap" style="flex:1;min-width:200px;">
+          <span class="ico" aria-hidden="true">✅</span>
+          <input type="text" id="newHabitInput" class="form-input" placeholder="New habit (e.g. Morning run)" maxlength="100" aria-label="New habit name">
+        </div>
+        <button class="add-btn" onclick="addHabit()" aria-label="Add habit">+ Add Habit</button>
+      </div>
+      <div class="card">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+          <h3 style="font-family:'DM Serif Display',serif;font-size:1.1rem;" id="habitDateLabel">Today's Habits</h3>
+          <span class="chip" id="habitCompletedChip">0/0 done</span>
+        </div>
+        <div id="habitList" role="list" aria-label="Habit list" aria-live="polite"></div>
+      </div>
+    </section>
+
+    <!-- ─── MOOD ─── -->
+    <section class="dash-section" id="mood" aria-label="Mood log">
+      <div class="section-header">
+        <h2>Mood Log 😊</h2>
+        <p>Track your emotional wellbeing over time</p>
+      </div>
+      <div class="content-grid">
+        <div class="card">
+          <h3 style="font-family:'DM Serif Display',serif;font-size:1.1rem;margin-bottom:16px;">Log Today's Mood</h3>
+          <div class="mood-grid" id="moodSectionBtns">
+            <button class="mood-btn" onclick="logMood('😄','Amazing')" aria-label="Amazing"><span class="mood-emoji">😄</span><span class="mood-label">Amazing</span></button>
+            <button class="mood-btn" onclick="logMood('🙂','Happy')" aria-label="Happy"><span class="mood-emoji">🙂</span><span class="mood-label">Happy</span></button>
+            <button class="mood-btn" onclick="logMood('😐','Neutral')" aria-label="Neutral"><span class="mood-emoji">😐</span><span class="mood-label">Neutral</span></button>
+            <button class="mood-btn" onclick="logMood('😕','Sad')" aria-label="Sad"><span class="mood-emoji">😕</span><span class="mood-label">Sad</span></button>
+            <button class="mood-btn" onclick="logMood('😞','Rough')" aria-label="Rough"><span class="mood-emoji">😞</span><span class="mood-label">Rough</span></button>
+          </div>
+          <div style="margin-top:16px;">
+            <label for="moodNote" style="font-size:.78rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;">Add a note (optional)</label>
+            <textarea id="moodNote" class="form-textarea" placeholder="How are you feeling today? What's on your mind?" maxlength="250" aria-label="Mood note"></textarea>
+          </div>
+        </div>
+        <div class="card">
+          <h3 style="font-family:'DM Serif Display',serif;font-size:1.1rem;margin-bottom:14px;">Mood History</h3>
+          <div id="moodHistory" aria-label="Mood history" aria-live="polite"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── ACTIVITIES ─── -->
+    <section class="dash-section" id="activities" aria-label="Activities">
+      <div class="section-header">
+        <h2>Activities 🏃</h2>
+        <p>Log your exercise and physical activities</p>
+      </div>
+      <div class="quick-add" role="form" aria-label="Add activity">
+        <div class="input-wrap" style="flex:1;min-width:160px;">
+          <span class="ico" aria-hidden="true">🏃</span>
+          <input type="text" id="newActivityName" class="form-input" placeholder="Activity name" maxlength="100" aria-label="Activity name">
+        </div>
+        <div class="input-wrap" style="width:100px;">
+          <span class="ico" aria-hidden="true">⏱</span>
+          <input type="number" id="newActivityDur" class="form-input" placeholder="Mins" min="1" max="999" aria-label="Duration in minutes">
+        </div>
+        <select id="newActivityType" class="form-select" style="width:140px;" aria-label="Activity type">
+          <option value="🏃 Running">🏃 Running</option>
+          <option value="🚴 Cycling">🚴 Cycling</option>
+          <option value="🏊 Swimming">🏊 Swimming</option>
+          <option value="🧘 Yoga">🧘 Yoga</option>
+          <option value="💪 Gym">💪 Gym</option>
+          <option value="🚶 Walking">🚶 Walking</option>
+          <option value="⚽ Sport">⚽ Sport</option>
+          <option value="🏋️ Other">🏋️ Other</option>
+        </select>
+        <button class="add-btn" onclick="addActivity()" aria-label="Add activity">+ Add</button>
+      </div>
+      <div class="card">
+        <div id="activityList" aria-label="Activity list" aria-live="polite"></div>
+      </div>
+    </section>
+
+    <!-- ─── GOALS ─── -->
+    <section class="dash-section" id="goals" aria-label="Goals">
+      <div class="section-header">
+        <h2>Goals 🎯</h2>
+        <p>Set intentions and track your progress</p>
+      </div>
+      <div class="quick-add" role="form" aria-label="Add goal">
+        <div class="input-wrap" style="flex:1;min-width:200px;">
+          <span class="ico" aria-hidden="true">🎯</span>
+          <input type="text" id="newGoalInput" class="form-input" placeholder="My new goal…" maxlength="100" aria-label="Goal title">
+        </div>
+        <input type="date" id="newGoalDate" class="form-input" style="width:160px;" aria-label="Goal target date">
+        <select id="newGoalCat" class="form-select" style="width:130px;" aria-label="Goal category">
+          <option value="Health">💚 Health</option>
+          <option value="Career">💼 Career</option>
+          <option value="Finance">💰 Finance</option>
+          <option value="Learning">📚 Learning</option>
+          <option value="Social">🤝 Social</option>
+          <option value="Personal">🌱 Personal</option>
+        </select>
+        <button class="add-btn" onclick="addGoal()" aria-label="Add goal">+ Add Goal</button>
+      </div>
+      <div id="goalList" aria-label="Goals list" aria-live="polite"></div>
+    </section>
+
+    <!-- ─── JOURNAL ─── -->
+    <section class="dash-section" id="journal" aria-label="Journal">
+      <div class="section-header">
+        <h2>Journal 📓</h2>
+        <p>Capture your thoughts, reflections and memories</p>
+      </div>
+      <div class="content-grid">
+        <div class="card">
+          <h3 style="font-family:'DM Serif Display',serif;font-size:1.1rem;margin-bottom:16px;">New Entry ✍️</h3>
+          <div class="form-group">
+            <label for="journalTitle">Title</label>
+            <div class="input-wrap">
+              <span class="ico" aria-hidden="true">📝</span>
+              <input type="text" id="journalTitle" class="form-input" placeholder="Entry title…" maxlength="100" aria-label="Journal title">
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="journalContent">Your Thoughts <span style="color:var(--muted);font-weight:400">(max 1000 chars)</span></label>
+            <textarea id="journalContent" class="form-textarea" rows="5" placeholder="Write freely…" maxlength="1000" aria-label="Journal content" style="min-height:140px;"></textarea>
+            <div style="text-align:right;font-size:.72rem;color:var(--muted);margin-top:4px;" id="journalCounter">0/1000</div>
+          </div>
+          <button class="add-btn" onclick="addJournalEntry()" aria-label="Save journal entry" style="width:100%;">Save Entry 💾</button>
+        </div>
+        <div class="card" style="max-height:500px;overflow-y:auto;">
+          <h3 style="font-family:'DM Serif Display',serif;font-size:1.1rem;margin-bottom:14px;">Past Entries</h3>
+          <div id="journalList" aria-label="Journal entries" aria-live="polite"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── MILESTONES ─── -->
+    <section class="dash-section" id="milestones" aria-label="Milestones and streaks">
+      <div class="section-header">
+        <h2>Milestones & Streaks 🏅</h2>
+        <p>Celebrate your wins and keep the momentum</p>
+      </div>
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon">🔥</div>
+          <div class="stat-val" id="ms_streak">1</div>
+          <div class="stat-label">Day Streak</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">✅</div>
+          <div class="stat-val" id="ms_habits">0</div>
+          <div class="stat-label">Total Habits Done</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">🎯</div>
+          <div class="stat-val" id="ms_goals">0</div>
+          <div class="stat-label">Goals Completed</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">📓</div>
+          <div class="stat-val" id="ms_entries">0</div>
+          <div class="stat-label">Journal Entries</div>
+        </div>
+      </div>
+
+      <div class="content-grid">
+        <div class="card">
+          <h3 style="font-family:'DM Serif Display',serif;font-size:1.1rem;margin-bottom:14px;">30-Day Streak Calendar</h3>
+          <div id="streakCalendar" style="display:grid;grid-template-columns:repeat(7,1fr);gap:5px;" aria-label="Streak calendar"></div>
+          <div style="display:flex;gap:12px;margin-top:12px;font-size:.75rem;color:var(--muted);align-items:center;">
+            <span style="display:flex;align-items:center;gap:4px;"><span style="width:12px;height:12px;border-radius:3px;background:var(--primary);display:inline-block;"></span>Active</span>
+            <span style="display:flex;align-items:center;gap:4px;"><span style="width:12px;height:12px;border-radius:3px;background:var(--border);display:inline-block;"></span>Missed</span>
+          </div>
+        </div>
+        <div class="card">
+          <h3 style="font-family:'DM Serif Display',serif;font-size:1.1rem;margin-bottom:14px;">Badges Earned 🏆</h3>
+          <div id="badgeList" style="display:flex;flex-wrap:wrap;gap:10px;" aria-label="Earned badges"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── ANALYTICS ─── -->
+    <section class="dash-section" id="analytics" aria-label="Analytics">
+      <div class="section-header">
+        <h2>Analytics 📊</h2>
+        <p>Visualize your progress over the past 7 days</p>
+      </div>
+      <div class="analytics-grid">
+        <div class="card">
+          <h3 style="font-family:'DM Serif Display',serif;font-size:1rem;margin-bottom:14px;">Habit Completion Rate</h3>
+          <div class="chart-wrap"><canvas id="habitChart" aria-label="Habit completion chart"></canvas></div>
+        </div>
+        <div class="card">
+          <h3 style="font-family:'DM Serif Display',serif;font-size:1rem;margin-bottom:14px;">Mood Trend</h3>
+          <div class="chart-wrap"><canvas id="moodChart" aria-label="Mood trend chart"></canvas></div>
+        </div>
+        <div class="card">
+          <h3 style="font-family:'DM Serif Display',serif;font-size:1rem;margin-bottom:14px;">Activity Minutes</h3>
+          <div class="chart-wrap"><canvas id="activityChart" aria-label="Activity chart"></canvas></div>
+        </div>
+        <div class="card">
+          <h3 style="font-family:'DM Serif Display',serif;font-size:1rem;margin-bottom:14px;">Weekly Summary</h3>
+          <div id="analyticsSummary"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── PROFILE ─── -->
+    <section class="dash-section" id="profile" aria-label="Profile">
+      <div class="section-header">
+        <h2>My Profile 👤</h2>
+        <p>Manage your personal information and preferences</p>
+      </div>
+      <div class="profile-header-card" role="article" aria-label="Profile header">
+        <div class="profile-avatar-lg" id="profileAvatar" aria-hidden="true">U</div>
+        <div>
+          <div class="profile-name-lg" id="profileName">User</div>
+          <div class="profile-joined" id="profileEmail">user@email.com</div>
+          <div style="margin-top:8px;">
+            <span class="chip" style="background:rgba(255,255,255,.25);color:#fff;" id="profileThemeChip">Default Theme</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="content-grid">
+        <div class="card">
+          <h3 style="font-family:'DM Serif Display',serif;font-size:1.1rem;margin-bottom:18px;">Edit Profile</h3>
+          <div class="form-group">
+            <label for="editUsername">Display Name</label>
+            <div class="input-wrap">
+              <span class="ico" aria-hidden="true">👤</span>
+              <input type="text" id="editUsername" class="form-input" maxlength="15" aria-label="Display name" oninput="validateUsername(this)">
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="editBio">Bio <span style="color:var(--muted);font-weight:400">(max 200 chars)</span></label>
+            <textarea id="editBio" class="form-textarea" placeholder="Tell us about yourself…" maxlength="200" aria-label="Bio"></textarea>
+          </div>
+          <div class="form-group">
+            <label>Theme Preference</label>
+            <div class="gender-picker" style="margin-bottom:0;">
+              <button type="button" class="g-btn" id="profileMaleBtn" onclick="setGender('male');saveProfile()" aria-pressed="false">♂️ Male / Green</button>
+              <button type="button" class="g-btn" id="profileFemaleBtn" onclick="setGender('female');saveProfile()" aria-pressed="false">♀️ Female / Pink</button>
+            </div>
+          </div>
+          <button class="btn-primary" onclick="saveProfile()" aria-label="Save profile changes">Save Changes ✓</button>
+        </div>
+
+        <div class="card">
+          <h3 style="font-family:'DM Serif Display',serif;font-size:1.1rem;margin-bottom:18px;">App Settings</h3>
+          <div style="display:flex;flex-direction:column;gap:16px;">
+            <div style="display:flex;align-items:center;justify-content:space-between;">
+              <div><div style="font-weight:600;font-size:.9rem;">Dark Mode</div><div style="font-size:.76rem;color:var(--muted);">Easier on the eyes</div></div>
+              <button class="topbar-btn" onclick="toggleDark()" aria-label="Toggle dark mode">🌙</button>
+            </div>
+            <div style="display:flex;align-items:center;justify-content:space-between;">
+              <div><div style="font-weight:600;font-size:.9rem;">High Contrast</div><div style="font-size:.76rem;color:var(--muted);">Accessibility boost</div></div>
+              <button class="topbar-btn" onclick="toggleContrast()" aria-label="Toggle high contrast">🌗</button>
+            </div>
+            <div style="display:flex;align-items:center;justify-content:space-between;">
+              <div><div style="font-weight:600;font-size:.9rem;">Text-to-Speech</div><div style="font-size:.76rem;color:var(--muted);">Read page aloud</div></div>
+              <button class="topbar-btn" onclick="toggleTTS()" aria-label="Toggle TTS">🔊</button>
+            </div>
+            <div style="border-top:1px solid var(--border);padding-top:16px;">
+              <button class="btn-danger" onclick="clearAllData()" aria-label="Clear all data" style="width:100%;">🗑️ Clear All Data</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </div><!-- end dash-main -->
+</div><!-- end dashPage -->
+
+<!-- =====================================================
+     MODAL (generic)
+===================================================== -->
+<div id="modalOverlay" class="modal-overlay" role="dialog" aria-modal="true" aria-label="Dialog" onclick="handleModalOverlayClick(event)">
+  <div class="modal" id="modalContent">
+    <h3 id="modalTitle">Confirm</h3>
+    <p id="modalBody" style="color:var(--text2);font-size:.9rem;line-height:1.6;"></p>
+    <div class="modal-actions">
+      <button class="btn-sec" onclick="closeModal()" aria-label="Cancel">Cancel</button>
+      <button class="btn-danger" id="modalConfirmBtn" aria-label="Confirm">Confirm</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════
+     FAB CLUSTER – bottom-left
+     ══════════════════════════════════════════ -->
+<div id="fabCluster" aria-label="Quick actions">
+  <!-- Chatbot toggle — AI SVG icon -->
+  <button id="chatbotFab" onclick="toggleChatbot()" aria-label="Open AI chatbot" title="SoftLife AI Assistant">
+    <svg width="26" height="26" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <!-- brain outline -->
+      <ellipse cx="16" cy="15" rx="8" ry="7" fill="rgba(255,255,255,0.15)" stroke="white" stroke-width="1.5"/>
+      <!-- neural nodes -->
+      <circle cx="11.5" cy="13.5" r="1.8" fill="white"/>
+      <circle cx="16"   cy="12"   r="1.8" fill="white"/>
+      <circle cx="20.5" cy="13.5" r="1.8" fill="white"/>
+      <circle cx="13.5" cy="17"   r="1.4" fill="rgba(255,255,255,0.8)"/>
+      <circle cx="18.5" cy="17"   r="1.4" fill="rgba(255,255,255,0.8)"/>
+      <!-- synapse lines -->
+      <line x1="11.5" y1="13.5" x2="16"   y2="12"   stroke="rgba(255,255,255,0.5)" stroke-width="1.1"/>
+      <line x1="16"   y1="12"   x2="20.5" y2="13.5" stroke="rgba(255,255,255,0.5)" stroke-width="1.1"/>
+      <line x1="11.5" y1="13.5" x2="13.5" y2="17"   stroke="rgba(255,255,255,0.4)" stroke-width="1"/>
+      <line x1="20.5" y1="13.5" x2="18.5" y2="17"   stroke="rgba(255,255,255,0.4)" stroke-width="1"/>
+      <!-- antenna -->
+      <line x1="16" y1="8" x2="16" y2="5.5" stroke="white" stroke-width="1.4" stroke-linecap="round"/>
+      <circle cx="16" cy="5" r="1.2" fill="white"/>
+      <!-- chat bubbles tail -->
+      <circle cx="11" cy="24" r="1.5" fill="white" opacity="0.85"/>
+      <circle cx="8"  cy="27" r="2"   fill="white" opacity="0.55"/>
+      <circle cx="5"  cy="30" r="1.1" fill="white" opacity="0.3"/>
+    </svg>
+  </button>
+</div>
+
+<!-- ── Chatbot Window ── -->
+<div id="chatbotWindow" role="dialog" aria-label="SoftLife Chatbot" aria-modal="true">
+  <div class="cw-header">
+    <span class="cw-header-icon">
+      <svg width="20" height="20" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="6" y="6" width="16" height="16" rx="3.5" fill="rgba(255,255,255,0.2)" stroke="white" stroke-width="1.4"/>
+        <rect x="10" y="10" width="8" height="8" rx="2" fill="rgba(255,255,255,0.4)"/>
+        <line x1="6"  y1="10.5" x2="3"  y2="10.5" stroke="white" stroke-width="1.3" stroke-linecap="round"/>
+        <line x1="6"  y1="14"   x2="3"  y2="14"   stroke="white" stroke-width="1.3" stroke-linecap="round"/>
+        <line x1="6"  y1="17.5" x2="3"  y2="17.5" stroke="white" stroke-width="1.3" stroke-linecap="round"/>
+        <line x1="22" y1="10.5" x2="25" y2="10.5" stroke="white" stroke-width="1.3" stroke-linecap="round"/>
+        <line x1="22" y1="14"   x2="25" y2="14"   stroke="white" stroke-width="1.3" stroke-linecap="round"/>
+        <line x1="22" y1="17.5" x2="25" y2="17.5" stroke="white" stroke-width="1.3" stroke-linecap="round"/>
+        <line x1="10.5" y1="6" x2="10.5" y2="3" stroke="white" stroke-width="1.3" stroke-linecap="round"/>
+        <line x1="17.5" y1="6" x2="17.5" y2="3" stroke="white" stroke-width="1.3" stroke-linecap="round"/>
+        <line x1="10.5" y1="22" x2="10.5" y2="25" stroke="white" stroke-width="1.3" stroke-linecap="round"/>
+        <line x1="17.5" y1="22" x2="17.5" y2="25" stroke="white" stroke-width="1.3" stroke-linecap="round"/>
+      </svg>
+    </span>
+    <span>SoftLife AI Assistant</span>
+    <button onclick="toggleChatbot()" aria-label="Close chatbot">✕</button>
+  </div>
+  <div id="cwMessages" aria-live="polite"></div>
+  <div class="cw-input-row" style="background:#ffffff;">
+    <input id="cwInput" type="text" placeholder="Ask me anything…"
+           maxlength="200" aria-label="Chat message"
+           style="background:#ffffff !important; color:#1a1a2e !important;"
+           onkeydown="if(event.key==='Enter')sendChatMessage()">
+    <button class="cw-send" onclick="sendChatMessage()" aria-label="Send">➤</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     FEEDBACK MODAL
+     ══════════════════════════════════════════ -->
+<div id="feedbackModal" role="dialog" aria-modal="true" aria-labelledby="fbModalTitle"
+     onclick="if(event.target===this)closeFeedbackModal()">
+  <div class="fb-card">
+    <h3 id="fbModalTitle">💬 Share Your Feedback</h3>
+    <p>Help us improve SoftLife — we read every message.</p>
+
+    <!-- Star rating -->
+    <div class="fb-stars" role="group" aria-label="Star rating">
+      <span class="fb-star" data-v="1" onclick="setFbRating(1)" role="button" tabindex="0" aria-label="1 star">★</span>
+      <span class="fb-star" data-v="2" onclick="setFbRating(2)" role="button" tabindex="0" aria-label="2 stars">★</span>
+      <span class="fb-star" data-v="3" onclick="setFbRating(3)" role="button" tabindex="0" aria-label="3 stars">★</span>
+      <span class="fb-star" data-v="4" onclick="setFbRating(4)" role="button" tabindex="0" aria-label="4 stars">★</span>
+      <span class="fb-star" data-v="5" onclick="setFbRating(5)" role="button" tabindex="0" aria-label="5 stars">★</span>
+    </div>
+
+    <div class="fb-field">
+      <label for="fbCategory">Category</label>
+      <select id="fbCategory">
+        <option value="">— Select category (optional) —</option>
+        <option value="bug">🐛 Bug Report</option>
+        <option value="feature">💡 Feature Request</option>
+        <option value="ux">🎨 Design / UX</option>
+        <option value="performance">⚡ Performance</option>
+        <option value="general">💬 General</option>
+      </select>
+    </div>
+
+    <div class="fb-field">
+      <label for="fbName">Your Name <span style="font-weight:400;color:var(--muted)">(optional)</span></label>
+      <input type="text" id="fbName" placeholder="e.g. Alex" maxlength="60" autocomplete="off">
+    </div>
+
+    <!-- Message + character counter -->
+    <div class="fb-field">
+      <label for="fbMessage">Your Message <span style="color:#ef4444">*</span></label>
+      <textarea id="fbMessage" class="fb-textarea" maxlength="250"
+                placeholder="Tell us what you love, what could be better, or report an issue…"
+                oninput="onFbInput()" aria-describedby="fbCharRow" required></textarea>
+      <div class="fb-char-row" id="fbCharRow">
+        <span class="fb-char-hint">Limit: 0–250 characters</span>
+        <span class="fb-char-count" id="fbCharCount">0 / 250</span>
+      </div>
+    </div>
+
+    <div id="fbAlert" class="fb-alert" role="alert"></div>
+
+    <!-- reCAPTCHA verify -->
+    <div class="fb-recaptcha-wrap">
+      <div class="fb-rc-row">
+        <label class="fb-rc-label" for="fbRcCheck">
+          <input type="checkbox" id="fbRcCheck" class="fb-rc-hidden"
+                 onchange="fbRcVerify(this)" aria-label="I am not a robot">
+          <span class="fb-rc-box"></span>
+          <span class="fb-rc-text">I'm not a robot</span>
+        </label>
+        <div class="rc-signup-logo">
+          <svg width="30" height="30" viewBox="0 0 64 64" fill="none">
+            <circle cx="32" cy="32" r="30" fill="#4a90d9"/>
+            <path d="M32 10C20 10 10 20 10 32C10 44 20 54 32 54C44 54 54 44 54 32"
+                  stroke="white" stroke-width="4.5" stroke-linecap="round"/>
+            <path d="M44 10L54 20L44 30" stroke="white" stroke-width="4.5"
+                  stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <span class="rc-brand-text">reCAPTCHA</span>
+          <span class="rc-small-links">Privacy · Terms</span>
+        </div>
+      </div>
+    </div>
+    <div id="fbRcMsg" style="font-size:.78rem;color:#ef4444;margin-bottom:8px;display:none;">
+      ⚠️ Please verify you're not a robot first.
+    </div>
+
+    <div class="fb-actions">
+      <button class="fb-cancel" onclick="closeFeedbackModal()">Cancel</button>
+      <button class="fb-submit" id="fbSubmitBtn" onclick="submitFeedback()">Send Feedback 🚀</button>
+    </div>
+  </div>
+</div>
+
+
+<script src="app.js"></script>
+</body>
+</html>
