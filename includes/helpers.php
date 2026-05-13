@@ -16,8 +16,7 @@ function fail(string $msg, int $code = 400): void {
 // ── CORS + JSON HEADERS ──
 function setHeaders(): void {
     header('Content-Type: application/json; charset=utf-8');
-$allowed = getenv('FRONTEND_URL') ?: '*';
-header('Access-Control-Allow-Origin: ' . $allowed);
+header('Access-Control-Allow-Origin: *');
     header('Access-Control-Allow-Methods: GET, POST, DELETE, OPTIONS');
     header('Access-Control-Allow-Headers: Content-Type, X-Token');
     if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') { http_response_code(204); exit; }
