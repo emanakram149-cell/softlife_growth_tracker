@@ -1,9 +1,11 @@
 <?php
 // ── DATABASE CONFIG ──
-define('DB_HOST', getenv('DB_HOST') ?: 'localhost');
-define('DB_USER', getenv('DB_USER') ?: 'root');
-define('DB_PASS', getenv('DB_PASS') ?: '');
-define('DB_NAME', getenv('DB_NAME') ?: 'railway');
+<?php
+// ── DATABASE CONFIG ──
+define('DB_HOST', 'mysql.railway.internal');
+define('DB_USER', 'root');
+define('DB_PASS', 'UAmrwHpuyxMGoCzTGNVBUFUtydpkdarf');
+define('DB_NAME', 'railway');
 
 function getDB(): PDO {
     static $pdo = null;
