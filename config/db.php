@@ -123,12 +123,11 @@ function getDB(): PDO {
             INDEX idx_feedback_created (created_at)
         ) ENGINE=InnoDB");
 
-    } } catch (PDOException $e) {
-    error_log('DB Error: ' . $e->getMessage()); // server log mein jaayega
+    }  catch (PDOException $e) {
     http_response_code(500);
     die(json_encode([
         'success' => false,
-        'error'   => 'Server error. Please try again.'  // user ko generic message
+        'error'   => 'DB Error: ' . $e->getMessage()  // ← yeh hatao
     ]));
 }
 
